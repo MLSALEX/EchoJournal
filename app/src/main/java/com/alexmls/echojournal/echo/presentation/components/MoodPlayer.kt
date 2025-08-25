@@ -24,6 +24,7 @@ import com.alexmls.echojournal.core.presentation.designsystem.theme.MoodPrimary3
 import com.alexmls.echojournal.core.presentation.designsystem.theme.MoodPrimary80
 import com.alexmls.echojournal.core.presentation.util.formatMMSS
 import com.alexmls.echojournal.echo.presentation.echo.models.PlaybackState
+import com.alexmls.echojournal.echo.presentation.echo.models.TrackSizeInfo
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
 import kotlin.random.Random
 import kotlin.time.Duration
@@ -41,7 +42,8 @@ fun MoodPlayer(
     onPauseClick: () -> Unit,
     modifier: Modifier = Modifier,
     amplitudeBarWidth: Dp = 5.dp,
-    amplitudeBarSpacing: Dp = 4.dp
+    amplitudeBarSpacing: Dp = 4.dp,
+    onTrackSizeAvailable: (TrackSizeInfo) -> Unit,
 ) {
 
     val backgroundColor = when(moodUi){
@@ -132,6 +134,7 @@ private fun MoodPlayerPr() {
             onPlayClick = {},
             modifier = Modifier
                 .fillMaxWidth(),
+            onTrackSizeAvailable = {}
         )
     }
 }
