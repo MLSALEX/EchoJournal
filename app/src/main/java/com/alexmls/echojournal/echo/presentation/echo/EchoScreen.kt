@@ -20,6 +20,7 @@ import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoEmptyBackground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoFilterRow
+import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoRecordFloatingActionButton
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoTopBar
 
@@ -95,7 +96,18 @@ fun EchoScreen(
                     )
                 }
                 else -> {
-
+                    EchoList(
+                        sections = state.echoDaySections,
+                        onPlayClick = {
+                            onAction(EchoAction.OnPlayEchoClick(it))
+                        },
+                        onPauseClick = {
+                            onAction(EchoAction.OnPauseClick)
+                        },
+                        onTrackSizeAvailable = { trackSize ->
+                            onAction(EchoAction.OnTrackSizeAvailable(trackSize))
+                        }
+                    )
                 }
             }
         }

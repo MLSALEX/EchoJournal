@@ -78,6 +78,10 @@ class EchoViewModel : ViewModel() {
             is EchoAction.OnFilterByTopicClick -> {
                 toggleIn(selectedTopicFilters, action.topic)
             }
+
+            EchoAction.OnPauseClick -> {}
+            is EchoAction.OnPlayEchoClick -> {}
+            is EchoAction.OnTrackSizeAvailable -> {}
         }
     }
 

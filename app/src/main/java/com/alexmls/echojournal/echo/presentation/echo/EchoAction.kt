@@ -1,6 +1,7 @@
 package com.alexmls.echojournal.echo.presentation.echo
 
 import com.alexmls.echojournal.echo.presentation.echo.models.EchoFilterChip
+import com.alexmls.echojournal.echo.presentation.echo.models.TrackSizeInfo
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
 
 sealed interface EchoAction {
@@ -14,4 +15,7 @@ sealed interface EchoAction {
     data object OnFabClick: EchoAction
     data object OnFabLongClick: EchoAction
     data class OnRemoveFilters(val filterType: EchoFilterChip): EchoAction
+    data class OnTrackSizeAvailable(val trackSizeInfo: TrackSizeInfo): EchoAction
+    data class OnPlayEchoClick(val echoId: Int): EchoAction
+    data object OnPauseClick : EchoAction
 }
