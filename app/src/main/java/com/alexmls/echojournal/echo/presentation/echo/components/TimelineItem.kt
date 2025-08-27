@@ -71,7 +71,7 @@ fun TimelineItem(
             onTrackSizeAvailable = onTrackSizeAvailable,
             onPlayClick = onPlayClick,
             onPauseClick = onPauseClick,
-            modifier = Modifier
+            modifier = modifier
                 .padding(vertical = 8.dp)
         )
 
