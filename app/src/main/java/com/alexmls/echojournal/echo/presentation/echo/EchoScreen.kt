@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -18,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.alexmls.echojournal.core.presentation.util.ObserveAsEvents
@@ -28,10 +26,11 @@ import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoRecordFloatingActionButton
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoTopBar
 import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EchoRoot(
-    viewModel: EchoViewModel = viewModel()
+    viewModel: EchoViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
