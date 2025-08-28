@@ -5,16 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.alexmls.echojournal.R
 import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.alexmls.echojournal.core.presentation.util.UiText
+import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
 import com.alexmls.echojournal.echo.presentation.echo.models.EchoFilterChip
 import com.alexmls.echojournal.echo.presentation.echo.models.MoodChipContent
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class EchoViewModel : ViewModel() {
 
@@ -22,6 +27,9 @@ class EchoViewModel : ViewModel() {
 
     private val selectedMoodFilters = MutableStateFlow<List<MoodUi>>(emptyList())
     private val selectedTopicFilters = MutableStateFlow<List<String>>(emptyList())
+
+    private val eventChannel = Channel<EchoEvent>()
+    val events = eventChannel.receiveAsFlow()
 
     private val _state = MutableStateFlow(EchoState())
     val state = _state
@@ -40,9 +48,17 @@ class EchoViewModel : ViewModel() {
     fun onAction(action: EchoAction) {
         when (action) {
             EchoAction.OnFabClick -> {
-
+                requestAudioPermission()
+                _state.update { it.copy(
+                    currentCaptureMethod = AudioCaptureMethod.STANDARD
+                ) }
             }
-            EchoAction.OnFabLongClick -> {}
+            EchoAction.OnFabLongClick -> {
+                requestAudioPermission()
+                _state.update { it.copy(
+                    currentCaptureMethod = AudioCaptureMethod.QUICK
+                ) }
+            }
 
             is EchoAction.OnRemoveFilters -> {
                 when(action.filterType){
@@ -82,7 +98,14 @@ class EchoViewModel : ViewModel() {
             EchoAction.OnPauseClick -> {}
             is EchoAction.OnPlayEchoClick -> {}
             is EchoAction.OnTrackSizeAvailable -> {}
+            EchoAction.OnAudioPermissionGranted -> {
+                Timber.d("Recording started...")
+            }
         }
+    }
+
+    private fun requestAudioPermission() = viewModelScope.launch {
+        eventChannel.send(EchoEvent.RequestAudioPermission)
     }
 
     private fun <T> toggleIn(flow: MutableStateFlow<List<T>>, item: T) {

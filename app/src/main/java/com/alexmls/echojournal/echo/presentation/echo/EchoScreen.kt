@@ -1,5 +1,8 @@
 package com.alexmls.echojournal.echo.presentation.echo
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,17 +21,34 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.alexmls.echojournal.core.presentation.util.ObserveAsEvents
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoEmptyBackground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoFilterRow
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoRecordFloatingActionButton
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoTopBar
+import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
 
 @Composable
 fun EchoRoot(
     viewModel: EchoViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if(isGranted && state.currentCaptureMethod == AudioCaptureMethod.STANDARD) {
+            viewModel.onAction(EchoAction.OnAudioPermissionGranted)
+        }
+    }
+    ObserveAsEvents(viewModel.events) { event ->
+        when(event) {
+            is EchoEvent.RequestAudioPermission -> {
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
 
     EchoScreen(
         state = state,

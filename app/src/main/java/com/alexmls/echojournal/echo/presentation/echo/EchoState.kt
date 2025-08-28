@@ -4,6 +4,7 @@ import com.alexmls.echojournal.R
 import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectable
 import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.alexmls.echojournal.core.presentation.util.UiText
+import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
 import com.alexmls.echojournal.echo.presentation.echo.models.EchoFilterChip
 import com.alexmls.echojournal.echo.presentation.echo.models.MoodChipContent
 import com.alexmls.echojournal.echo.presentation.models.EchoUi
@@ -12,6 +13,7 @@ import com.alexmls.echojournal.echo.presentation.echo.models.DaySection
 
 data class EchoState(
     val echos: Map<UiText, List<EchoUi>> = emptyMap(),
+    val currentCaptureMethod: AudioCaptureMethod? = null,
     val hasEchosRecorded: Boolean = false,
     val hasActiveTopicFilters: Boolean = false,
     val hasActiveMoodFilters: Boolean = false,
