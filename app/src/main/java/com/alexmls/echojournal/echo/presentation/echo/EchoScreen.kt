@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +24,7 @@ import com.alexmls.echojournal.R
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.alexmls.echojournal.core.presentation.util.ObserveAsEvents
+import com.alexmls.echojournal.core.presentation.util.isAppInForeground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoEmptyBackground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoFilterRow
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
@@ -66,6 +68,12 @@ fun EchoRoot(
         }
     }
 
+    val isAppInForeground by isAppInForeground()
+    LaunchedEffect(isAppInForeground, state.recordingState) {
+        if(state.recordingState == RecordingState.NORMAL_CAPTURE && !isAppInForeground) {
+            viewModel.onAction(EchoAction.OnPauseRecordingClick)
+        }
+    }
     EchoScreen(
         state = state,
         onAction = viewModel::onAction
