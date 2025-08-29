@@ -12,8 +12,9 @@ sealed interface EchoAction {
     data object OnTopicChipClick: EchoAction
     data class OnFilterByTopicClick(val topic: String): EchoAction
     data object OnSettingsClick: EchoAction
-    data object OnFabClick: EchoAction
-    data object OnFabLongClick: EchoAction
+    data object OnRecordFabClick: EchoAction
+    data object OnRequestPermissionQuickRecording: EchoAction
+    data object OnRecordButtonLongClick: EchoAction
     data class OnRemoveFilters(val filterType: EchoFilterChip): EchoAction
     data class OnTrackSizeAvailable(val trackSizeInfo: TrackSizeInfo): EchoAction
     data class OnPlayEchoClick(val echoId: Int): EchoAction

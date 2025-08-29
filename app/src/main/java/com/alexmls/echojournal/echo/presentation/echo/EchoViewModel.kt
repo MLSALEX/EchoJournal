@@ -59,7 +59,7 @@ class EchoViewModel(
 
     fun onAction(action: EchoAction) {
         when (action) {
-            EchoAction.OnFabClick -> {
+            EchoAction.OnRecordFabClick -> {
                 requestAudioPermission()
                 _state.update {
                     it.copy(
@@ -67,7 +67,7 @@ class EchoViewModel(
                     )
                 }
             }
-            EchoAction.OnFabLongClick -> {
+            EchoAction.OnRequestPermissionQuickRecording -> {
                 requestAudioPermission()
                 _state.update {
                     it.copy(
@@ -75,7 +75,9 @@ class EchoViewModel(
                     )
                 }
             }
-
+            EchoAction.OnRecordButtonLongClick -> {
+                startRecording(captureMethod = AudioCaptureMethod.QUICK)
+            }
             is EchoAction.OnRemoveFilters -> {
                 when(action.filterType){
                     EchoFilterChip.MOODS -> selectedMoodFilters.update { emptyList()}

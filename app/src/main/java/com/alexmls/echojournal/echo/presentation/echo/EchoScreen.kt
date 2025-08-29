@@ -1,6 +1,7 @@
 package com.alexmls.echojournal.echo.presentation.echo
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexmls.echojournal.R
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
@@ -28,7 +30,7 @@ import com.alexmls.echojournal.core.presentation.util.isAppInForeground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoEmptyBackground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoFilterRow
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
-import com.alexmls.echojournal.echo.presentation.echo.components.EchoRecordFloatingActionButton
+import com.alexmls.echojournal.echo.presentation.echo.components.EchoQuickRecordButton
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoTopBar
 import com.alexmls.echojournal.echo.presentation.echo.components.RecordingSheet
 import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
@@ -85,11 +87,31 @@ fun EchoScreen(
     state: EchoState,
     onAction: (EchoAction) -> Unit,
 ) {
+    val context = LocalContext.current
     Scaffold (
         floatingActionButton = {
-            EchoRecordFloatingActionButton(
+            EchoQuickRecordButton(
                 onClick = {
-                    onAction(EchoAction.OnFabClick)
+                    onAction(EchoAction.OnRecordFabClick)
+                },
+                isQuickRecording = state.recordingState == RecordingState.QUICK_CAPTURE,
+                onLongPressEnd = { cancelledRecording ->
+                    if(cancelledRecording) {
+                        onAction(EchoAction.OnCancelRecording)
+                    } else {
+                        onAction(EchoAction.OnCompleteRecording)
+                    }
+                },
+                onLongPressStart = {
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (hasPermission) {
+                        onAction(EchoAction.OnRecordButtonLongClick)
+                    } else {
+                        onAction(EchoAction.OnRequestPermissionQuickRecording)
+                    }
                 }
             )
         },
