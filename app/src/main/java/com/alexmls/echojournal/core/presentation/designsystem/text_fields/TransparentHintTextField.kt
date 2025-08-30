@@ -40,7 +40,7 @@ fun TransparentHintTextField(
         singleLine = singleLine,
         decorationBox = { innerTextField ->
             Box(
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.CenterStart
             ){
                 if(text.isBlank() && hintText != null){
                     Text(
