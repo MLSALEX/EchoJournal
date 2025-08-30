@@ -4,17 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
+import androidx.navigation.compose.rememberNavController
+import com.alexmls.echojournal.app.navigation.Navigation
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
-import com.alexmls.echojournal.echo.data.recording.VoiceRecorderImpl
-import com.alexmls.echojournal.echo.presentation.echo.EchoRoot
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +14,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EchoJournalTheme {
-                EchoRoot()
+                Navigation(
+                    navController = rememberNavController()
+                )
             }
         }
     }

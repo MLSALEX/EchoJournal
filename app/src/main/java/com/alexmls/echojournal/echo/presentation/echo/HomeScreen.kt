@@ -27,6 +27,7 @@ import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalT
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
 import com.alexmls.echojournal.core.presentation.util.ObserveAsEvents
 import com.alexmls.echojournal.core.presentation.util.isAppInForeground
+import com.alexmls.echojournal.echo.domain.recording.RecordingDetails
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoEmptyBackground
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoFilterRow
 import com.alexmls.echojournal.echo.presentation.echo.components.EchoList
@@ -36,10 +37,10 @@ import com.alexmls.echojournal.echo.presentation.echo.components.RecordingSheet
 import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
 import com.alexmls.echojournal.echo.presentation.echo.models.RecordingState
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
-fun EchoRoot(
+fun HomeScreen(
+    onNavigateToCreateEcho: (RecordingDetails) -> Unit,
     viewModel: EchoViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -65,7 +66,7 @@ fun EchoRoot(
                 ).show()
             }
             is EchoEvent.OnDoneRecording -> {
-                Timber.d("Recording successful!")
+                onNavigateToCreateEcho(event.details)
             }
         }
     }

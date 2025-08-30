@@ -172,7 +172,7 @@ class EchoViewModel(
             if(recordingDetails.duration < MIN_RECORD_DURATION) {
                 eventChannel.send(EchoEvent.RecordingTooShort)
             } else {
-                eventChannel.send(EchoEvent.OnDoneRecording)
+                eventChannel.send(EchoEvent.OnDoneRecording(recordingDetails))
             }
         }
     }
