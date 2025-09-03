@@ -7,8 +7,11 @@ import androidx.navigation.toRoute
 import com.alexmls.echojournal.app.navigation.NavigationRoute
 import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.alexmls.echojournal.echo.data.recording.RecordingStorage
+import com.alexmls.echojournal.echo.presentation.echo.models.TrackSizeInfo
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
+import com.alexmls.echojournal.echo.presentation.util.AmplitudeNormalizer
 import com.alexmls.echojournal.echo.presentation.util.toRecordingDetails
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,11 +70,25 @@ class CreateEchoViewModel(
             CreateEchoAction.OnSelectMoodClick -> onSelectMoodClick()
             is CreateEchoAction.OnTitleTextChange -> onTitleTextChange(action.text)
             is CreateEchoAction.OnTopicClick -> onTopicClick(action.topic)
-            is CreateEchoAction.OnTrackSizeAvailable -> {}
+            is CreateEchoAction.OnTrackSizeAvailable -> onTrackSizeAvailable(action.trackSizeInfo)
             CreateEchoAction.OnDismissConfirmLeaveDialog -> onDismissConfirmLeaveDialog()
             CreateEchoAction.OnCancelClick,
             CreateEchoAction.OnNavigateBackClick,
             CreateEchoAction.OnGoBack -> onShowConfirmLeaveDialog()
+        }
+    }
+    private fun onTrackSizeAvailable(trackSizeInfo: TrackSizeInfo) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val finalAmplitudes = AmplitudeNormalizer.normalize(
+                sourceAmplitudes = recordingDetails.amplitudes,
+                trackWidth = trackSizeInfo.trackWidth,
+                barWidth = trackSizeInfo.barWidth,
+                spacing = trackSizeInfo.spacing
+            )
+
+            _state.update { it.copy(
+                playbackAmplitudes = finalAmplitudes
+            ) }
         }
     }
 
