@@ -40,6 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -55,11 +56,13 @@ import com.alexmls.echojournal.core.presentation.designsystem.text_fields.Transp
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.alexmls.echojournal.core.presentation.designsystem.theme.secondary70
 import com.alexmls.echojournal.core.presentation.designsystem.theme.secondary95
+import com.alexmls.echojournal.core.presentation.util.ObserveAsEvents
 import com.alexmls.echojournal.echo.presentation.components.MoodPlayer
 import com.alexmls.echojournal.echo.presentation.create_echo.components.MoodSheet
 import com.alexmls.echojournal.echo.presentation.create_echo.components.TopicsRow
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
 import org.koin.androidx.compose.koinViewModel
+import android.widget.Toast
 
 @Composable
 fun CreateEchoRoot(
@@ -67,6 +70,20 @@ fun CreateEchoRoot(
     viewModel: CreateEchoViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    ObserveAsEvents(viewModel.events) { event ->
+        when(event) {
+            CreateEchoEvent.FailedToSaveFile -> {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_couldnt_save_file),
+                    Toast.LENGTH_LONG
+                ).show()
+                onConfirmLeave()
+            }
+        }
+    }
 
     CreateEchoScreen(
         state = state,

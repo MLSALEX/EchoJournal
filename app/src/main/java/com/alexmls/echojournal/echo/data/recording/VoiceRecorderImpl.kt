@@ -7,6 +7,7 @@ import com.alexmls.echojournal.echo.domain.recording.RecordingDetails
 import com.alexmls.echojournal.echo.domain.recording.VoiceRecorder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,10 +26,10 @@ class VoiceRecorderImpl(
     private val applicationScope: CoroutineScope
 ): VoiceRecorder {
     companion object {
-        private const val TEMP_FILE_PREFIX = "temp_recording"
         private const val MAX_AMPLITUDE_VALUE = 26_000L
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val singleThreadDispatcher = Dispatchers.Default.limitedParallelism(1)
 
     private val _recordingDetails = MutableStateFlow(RecordingDetails())
@@ -125,7 +126,7 @@ class VoiceRecorderImpl(
         val id = UUID.randomUUID().toString()
         return File(
             context.cacheDir,
-            "${TEMP_FILE_PREFIX}_$id.mp4"
+            "${RecordingStorage.TEMP_FILE_PREFIX}_$id.${RecordingStorage.RECORDING_FILE_EXTENSION}"
         )
     }
 
