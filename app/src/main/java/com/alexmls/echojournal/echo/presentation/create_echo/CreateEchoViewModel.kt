@@ -7,17 +7,21 @@ import androidx.navigation.toRoute
 import com.alexmls.echojournal.app.navigation.NavigationRoute
 import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectable.Companion.asUnselectedItems
 import com.alexmls.echojournal.echo.data.recording.RecordingStorage
+import com.alexmls.echojournal.echo.domain.audio.AudioPlayer
+import com.alexmls.echojournal.echo.presentation.echo.models.PlaybackState
 import com.alexmls.echojournal.echo.presentation.echo.models.TrackSizeInfo
 import com.alexmls.echojournal.echo.presentation.models.MoodUi
 import com.alexmls.echojournal.echo.presentation.util.AmplitudeNormalizer
 import com.alexmls.echojournal.echo.presentation.util.toRecordingDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -26,10 +30,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
 
 class CreateEchoViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val recordingStorage: RecordingStorage
+    private val recordingStorage: RecordingStorage,
+    private val audioPlayer: AudioPlayer
 ) : ViewModel() {
 
     private var hasLoadedInitialData = false
@@ -41,7 +47,10 @@ class CreateEchoViewModel(
     val events = eventChannel.receiveAsFlow()
 
 
-    private val _state = MutableStateFlow(CreateEchoState())
+    private val _state = MutableStateFlow(CreateEchoState(
+        playbackTotalDuration = recordingDetails.duration
+    ))
+
     val state = _state
         .onStart {
             if (!hasLoadedInitialData) {
@@ -54,6 +63,7 @@ class CreateEchoViewModel(
             started = SharingStarted.WhileSubscribed(5_000L),
             initialValue = CreateEchoState()
         )
+    private var durationJob: Job? = null
 
     fun onAction(action: CreateEchoAction) {
         when (action) {
@@ -63,8 +73,8 @@ class CreateEchoViewModel(
             CreateEchoAction.OnDismissTopicSuggestions ->  onDismissTopicSuggestions()
             is CreateEchoAction.OnMoodClick -> onMoodClick(action.moodUi)
             is CreateEchoAction.OnNoteTextChange -> {}
-            CreateEchoAction.OnPauseAudioClick -> {}
-            CreateEchoAction.OnPlayAudioClick -> {}
+            CreateEchoAction.OnPauseAudioClick -> audioPlayer.pause()
+            CreateEchoAction.OnPlayAudioClick -> onPlayAudioClick()
             is CreateEchoAction.OnRemoveTopicClick -> onRemoveTopicClick(action.topic)
             CreateEchoAction.OnSaveClick -> onSaveClick()
             CreateEchoAction.OnSelectMoodClick -> onSelectMoodClick()
@@ -77,6 +87,36 @@ class CreateEchoViewModel(
             CreateEchoAction.OnGoBack -> onShowConfirmLeaveDialog()
         }
     }
+
+    private fun onPlayAudioClick() {
+        if(state.value.playbackState == PlaybackState.PAUSED) {
+            audioPlayer.resume()
+        } else {
+            audioPlayer.play(
+                filePath = recordingDetails.filePath ?: throw IllegalArgumentException(
+                    "File path can't be null"
+                ),
+                onComplete = {
+                    _state.update { it.copy(
+                        playbackState = PlaybackState.STOPPED,
+                        durationPlayed = Duration.ZERO
+                    ) }
+                }
+            )
+
+            durationJob = audioPlayer
+                .activeTrack
+                .filterNotNull()
+                .onEach { track ->
+                    _state.update { it.copy(
+                        playbackState = if(track.isPlaying) PlaybackState.PLAYING else PlaybackState.PAUSED,
+                        durationPlayed = track.durationPlayed
+                    ) }
+                }
+                .launchIn(viewModelScope)
+        }
+    }
+
     private fun onTrackSizeAvailable(trackSizeInfo: TrackSizeInfo) {
         viewModelScope.launch(Dispatchers.Default) {
             val finalAmplitudes = AmplitudeNormalizer.normalize(
