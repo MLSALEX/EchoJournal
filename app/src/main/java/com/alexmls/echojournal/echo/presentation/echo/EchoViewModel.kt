@@ -7,6 +7,7 @@ import com.alexmls.echojournal.core.presentation.designsystem.dropdowns.Selectab
 import com.alexmls.echojournal.core.presentation.util.UiText
 import com.alexmls.echojournal.core.presentation.util.toEchoUi
 import com.alexmls.echojournal.echo.domain.audio.AudioPlayer
+import com.alexmls.echojournal.echo.domain.echo.Echo
 import com.alexmls.echojournal.echo.domain.echo.EchoDataSource
 import com.alexmls.echojournal.echo.domain.recording.VoiceRecorder
 import com.alexmls.echojournal.echo.presentation.echo.models.AudioCaptureMethod
@@ -77,8 +78,9 @@ class EchoViewModel(
             initialValue = EchoState()
         )
 
-    private val echos = echoDataSource
+    private val filteredEchos = echoDataSource
         .observeEchos()
+        .filterByMoodAndTopics()
         .onEach { echos ->
             _state.update { it.copy(
                 hasEchosRecorded = echos.isNotEmpty(),
@@ -145,6 +147,7 @@ class EchoViewModel(
 
             }
 
+            EchoAction.OnDismissTopicDropDown,
             EchoAction.OnDismissMoodDropDown -> {
                 _state.update {
                     it.copy(
@@ -152,7 +155,7 @@ class EchoViewModel(
                     )
                 }
             }
-            EchoAction.OnDismissTopicDropDown -> {}
+
             is EchoAction.OnFilterByMoodClick -> {
                 toggleIn(selectedMoodFilters, action.moodUi)
             }
@@ -180,7 +183,7 @@ class EchoViewModel(
 
     private fun observeEchos() {
         combine(
-            echos,
+            filteredEchos,
             playingEchoId,
             audioPlayer.activeTrack
         ) { echos, playingEchoId, activeTrack ->
@@ -325,15 +328,16 @@ class EchoViewModel(
 
     private fun observeFilters() {
         combine(
+            echoDataSource.observeTopics(),
             selectedTopicFilters,
             selectedMoodFilters
-        ) { selectedTopics, selectedMoods ->
+        ) { allTopics, selectedTopics, selectedMoods ->
             _state.update {
                 it.copy(
-                    topics = it.topics.map { selectableTopic ->
+                    topics = allTopics.map { topic ->
                         Selectable(
-                            item = selectableTopic.item,
-                            selected = selectedTopics.contains(selectableTopic.item)
+                            item = topic,
+                            selected = selectedTopics.contains(topic)
                         )
                     },
                     moods = MoodUi.entries.map {
@@ -394,6 +398,27 @@ class EchoViewModel(
                         uiTexts = moodNames.take(2).toTypedArray()
                     )
                 )
+            }
+        }
+    }
+
+    private fun Flow<List<Echo>>.filterByMoodAndTopics(): Flow<List<Echo>> {
+        return combine(
+            this,
+            selectedMoodFilters,
+            selectedTopicFilters
+        ) { echos, moodFilters, topicFilters ->
+            echos.filter { echo ->
+                val matchesMoodFilter = moodFilters
+                    .takeIf { it.isNotEmpty() }
+                    ?.any { it.name == echo.mood.name }
+                    ?: true
+                val matchesTopicFilter = topicFilters
+                    .takeIf { it.isNotEmpty() }
+                    ?.any { it in echo.topics }
+                    ?: true
+
+                matchesMoodFilter && matchesTopicFilter
             }
         }
     }

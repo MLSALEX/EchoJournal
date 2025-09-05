@@ -169,7 +169,7 @@ fun EchoScreen(
                             onAction(EchoAction.OnPlayEchoClick(it))
                         },
                         onPauseClick = {
-                            onAction(EchoAction.OnPauseRecordingClick)
+                            onAction(EchoAction.OnPauseAudioClick)
                         },
                         onTrackSizeAvailable = { trackSize ->
                             onAction(EchoAction.OnTrackSizeAvailable(trackSize))
