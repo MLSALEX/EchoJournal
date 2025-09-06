@@ -10,6 +10,7 @@ import com.alexmls.echojournal.echo.domain.recording.VoiceRecorder
 import com.alexmls.echojournal.echo.presentation.create_echo.CreateEchoViewModel
 import com.alexmls.echojournal.echo.presentation.echo.EchoViewModel
 import com.alexmls.echojournal.echo.domain.echo.EchoDataSource
+import com.alexmls.echojournal.echo.presentation.settings.SettingsViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -23,4 +24,5 @@ val echoModule = module {
 
     viewModelOf(::EchoViewModel)
     viewModelOf(::CreateEchoViewModel)
+    viewModelOf(::SettingsViewModel)
 }

@@ -41,6 +41,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     onNavigateToCreateEcho: (RecordingDetails) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: EchoViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,7 +80,13 @@ fun HomeScreen(
     }
     EchoScreen(
         state = state,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when(action) {
+                is EchoAction.OnSettingsClick -> onNavigateToSettings()
+                else -> Unit
+            }
+            viewModel.onAction(action)
+        }
     )
 }
 
