@@ -12,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -25,15 +24,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexmls.echojournal.R
 import com.alexmls.echojournal.core.presentation.designsystem.theme.EchoJournalTheme
 import com.alexmls.echojournal.core.presentation.designsystem.theme.bgGradient
+import com.alexmls.echojournal.echo.presentation.models.MoodUi
+import com.alexmls.echojournal.echo.presentation.settings.components.MoodCard
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsRoot(
     onGoBack: () -> Unit,
-    viewModel: SettingsViewModel = viewModel()
+    viewModel: SettingsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -93,7 +94,10 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
+            MoodCard(
+                selectedMood = state.selectedMood,
+                onMoodClick = { onAction(SettingsAction.OnMoodClick(it)) }
+            )
         }
     }
 }
@@ -103,7 +107,9 @@ fun SettingsScreen(
 private fun Preview() {
     EchoJournalTheme {
         SettingsScreen(
-            state = SettingsState(),
+            state = SettingsState(
+                selectedMood = MoodUi.SAD
+            ),
             onAction = {}
         )
     }
